@@ -55,7 +55,7 @@ Dependency Injection is used extensively throughout the project to manage depend
 
 ### Singleton
 
-The Singleton pattern is used to ensure that certain services, such as `SOLIDMetrics`, `ViolationFactory`, and `ProjectAnalyzer`, have only one instance throughout the application's lifecycle. This is achieved by registering these services as singletons in the `RegisterServices` method. This pattern helps in maintaining a single source of truth and managing shared resources efficiently.
+The Singleton pattern is used to ensure that certain services, such as `SOLIDMetrics`, `ViolationFactory`, `ViolationFileDetailFactory`, `ViolationManager`, `ViolationFileDetailManager`, and `ProjectAnalyzer`, have only one instance throughout the application's lifecycle. This is achieved by registering these services as singletons in the `RegisterServices` method. This pattern helps in maintaining a single source of truth and managing shared resources efficiently.
 
 ### Factory
 
@@ -63,7 +63,7 @@ The Factory pattern is used to create instances of various violation-related cla
 
 ### Strategy
 
-The Strategy pattern is employed to encapsulate the algorithms for checking each of the SOLID principles. Each principle has its own checker class (e.g., `SRPChecker`, `OCPChecker`, etc.), and these classes implement the respective interfaces (`ISRPChecker`, `IOCPChecker`, etc.). This pattern adheres to the **S**ingle Responsibility Principle by ensuring each class has one reason to change.
+The Strategy pattern is employed to encapsulate the algorithms for checking each of the SOLID principles. Each principle has its own checker class (e.g., `SRPChecker`, `OCPChecker`, `LSPChecker`, `ISPChecker`, `DIPChecker`), and these classes implement the respective interfaces (`ISRPChecker`, `IOCPChecker`, `ILSPChecker`, `IISPChecker`, `IDIPChecker`). This pattern adheres to the **S**ingle Responsibility Principle by ensuring each class has one reason to change.
 
 ## Architecture
 
@@ -74,6 +74,8 @@ The architecture of SOLIDify is designed to be modular and extensible. The main 
 - **ProjectAnalyzer**: The concrete implementation of `IProjectAnalyzer`. It uses `IMetricsProvider` to analyze the project's code files.
 - **IMetricsProvider**: An interface that defines the contract for providing metrics related to SOLID principles.
 - **SOLIDMetrics**: The concrete implementation of `IMetricsProvider`. It provides the actual metrics and checks for SOLID principles.
+- **ViolationManager**: A class responsible for managing violations.
+- **ViolationFileDetailManager**: A class responsible for managing violation file details.
 
 This architecture ensures adherence to the SOLID principles by promoting loose coupling, high cohesion, and separation of concerns. Each component has a well-defined responsibility, making the system easier to understand, maintain, and extend.
 

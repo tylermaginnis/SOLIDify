@@ -18,267 +18,50 @@
             <h2>SRP</h2>
             <ul>
               <li>
-                <span class='file-name'>C:/dev/Test/Violations.cs</span>
-                <span class='line-number'>(Line 8)</span>: 
-                <span class='code'>public class Violations
-{
-    // Violates Single Responsibility Principle: This class has multiple unrelated responsibilities
-    public void SaveToFile(string data)
-    {
-        File.WriteAllText(&quot;data.txt&quot;, data);
+                <span class='file-name'>C:/dev/soliditty/SOLIDify\Program.cs</span>
+                <span class='line-number'>(Line 196)</span>: 
+                <span class='code'>public class Violation : IViolation {
+    public string Principle { get; }
+    private readonly List&lt;IViolationFileDetail&gt; _fileDetails;
+    public IReadOnlyList&lt;IViolationFileDetail&gt; FileDetails =&gt; _fileDetails.AsReadOnly();
+    public string ChatGPTResponse { get; set; }
+
+    public Violation(string principle, List&lt;IViolationFileDetail&gt; fileDetails) {
+      Principle = principle;
+      _fileDetails = fileDetails;
+      Console.WriteLine($&quot;Violation instance created for principle: {principle}&quot;);
     }
 
-    public void SendEmail(string email, string message)
-    {
-        Console.WriteLine($&quot;Sending email to {email} with message: {message}&quot;);
+    public override string ToString() {
+      return $&quot;Principle: {Principle}, Files: {string.Join(&quot;; &quot;, FileDetails)}&quot;;
     }
-
-    public void LogError(string error)
-    {
-        File.AppendAllText(&quot;error.log&quot;, error);
-    }
-
-    public void GenerateReport()
-    {
-        Console.WriteLine(&quot;Generating report...&quot;);
-    }
-
-    // Additional methods to increase SRP violations
-    public void PrintData(string data)
-    {
-        Console.WriteLine(data);
-    }
-
-    public void ShiftData(string data)
-    {
-        Console.WriteLine(data);
-    }
-
-    public void ArchiveData(string data)
-    {
-        File.WriteAllText(&quot;archive.txt&quot;, data);
-    }
-
-    public void AnotherUnrelatedMethod()
-    {
-        Console.WriteLine(&quot;Doing something unrelated...&quot;);
-    }
-
-    public void YetAnotherUnrelatedMethod()
-    {
-        Console.WriteLine(&quot;Doing another unrelated thing...&quot;);
-    }
-
-    public void MoreUnrelatedMethods()
-    {
-        Console.WriteLine(&quot;More unrelated methods...&quot;);
-    }
-
-    public void EvenMoreUnrelatedMethods()
-    {
-        Console.WriteLine(&quot;Even more unrelated methods...&quot;);
-    }
-
-    public void UnrelatedMethod1()
-    {
-        Console.WriteLine(&quot;Unrelated method 1...&quot;);
-    }
-
-    public void UnrelatedMethod2()
-    {
-        Console.WriteLine(&quot;Unrelated method 2...&quot;);
-    }
-
-    public void UnrelatedMethod3()
-    {
-        Console.WriteLine(&quot;Unrelated method 3...&quot;);
-    }
-
-    public void UnrelatedMethod4()
-    {
-        Console.WriteLine(&quot;Unrelated method 4...&quot;);
-    }
-
-    // Violates Open/Closed Principle: This method is not open for extension and requires modification for new customer types
-    public double CalculateDiscount(double amount, string customerType, int loyaltyYears, bool isHoliday)
-    {
-        double discount = 0;
-        if (customerType == &quot;Regular&quot;)
-        {
-            discount = amount * 0.1;
-        }
-        else if (customerType == &quot;Premium&quot;)
-        {
-            discount = amount * 0.2;
-        }
-        else if (customerType == &quot;VIP&quot;)
-        {
-            discount = amount * 0.3;
-        }
-        else if (customerType == &quot;Special&quot;)
-        {
-            discount = amount * 0.4;
-        }
-
-        if (loyaltyYears &gt; 5)
-        {
-            discount += amount * 0.05;
-        }
-
-        if (isHoliday)
-        {
-            discount -= amount * 0.02;
-        }
-
-        return Math.Max(discount, 0);
-    }
-
-    // Additional method to increase OCP violations
-    public double CalculateSpecialDiscount(double amount, string customerType)
-    {
-        double discount = 0;
-        if (customerType == &quot;Special&quot;)
-        {
-            discount = amount * 0.4;
-        }
-        return discount;
-    }
-
-    // Violates Liskov Substitution Principle: Derived classes might change the expected behavior
-    public virtual async Task&lt;string&gt; GetUserDetails(int userId)
-    {
-        await Task.Delay(100);
-        return $&quot;User details for user id: {userId}&quot;;
-    }
-
-    public virtual async Task&lt;string&gt; GetAdminDetails(int adminId)
-    {
-        await Task.Delay(100);
-        return $&quot;Admin details for admin id: {adminId}&quot;;
-    }
-
-    // Additional method to increase LSP violations
-    public virtual async Task&lt;string&gt; GetGuestDetails(int guestId)
-    {
-        await Task.Delay(100);
-        return $&quot;Guest details for guest id: {guestId}&quot;;
-    }
-
-    // Violates Interface Segregation Principle: This interface has too many methods, forcing implementing classes to implement unnecessary methods
-    public interface IUser
-    {
-        void AddUser(string name);
-        void DeleteUser(int userId);
-        void UpdateUser(int userId, string name);
-        void GetUser(int userId);
-        void GetUserEmail(int userId);
-        void GetUserAddress(int userId);
-        void GetUserPaymentInfo(int userId);
-        void UpdateUserPassword(int userId, string newPassword);
-        void LockUserAccount(int userId);
-        void UnlockUserAccount(int userId);
-        void ResetUserPassword(int userId);
-        void SuspendUserAccount(int userId);
-    }
-
-    // Additional methods to increase ISP violations
-    public interface IExtendedUser : IUser
-    {
-        void AnotherMethod();
-        void YetAnotherMethod();
-    }
-
-    // Violates Dependency Inversion Principle: This class depends on concrete classes instead of abstractions
-    public class UserManager
-    {
-        private Violations _violations;
-        private EmailService _emailService;
-        private DatabaseService _databaseService;
-        private PaymentProcessor _paymentProcessor;
-
-        public UserManager()
-        {
-            _violations = new Violations();
-            _emailService = new EmailService();
-            _databaseService = new DatabaseService();
-            _paymentProcessor = new PaymentProcessor();
-        }
-
-        public void CreateUser(string name)
-        {
-            _violations.SaveToFile(name);
-            _emailService.SendWelcomeEmail(name);
-            _databaseService.InsertUser(name);
-        }
-
-        public void DeleteUser(int userId)
-        {
-            _violations.LogError($&quot;User {userId} deleted.&quot;);
-            _databaseService.DeleteUser(userId);
-            _paymentProcessor.CancelSubscription(userId);
-        }
-    }
-
-    public class EmailService
-    {
-        public void SendWelcomeEmail(string name)
-        {
-            Console.WriteLine($&quot;Sending welcome email to {name}&quot;);
-        }
-    }
-
-    public class DatabaseService
-    {
-        public void InsertUser(string name)
-        {
-            Console.WriteLine($&quot;Inserting user {name} into database&quot;);
-        }
-
-        public void DeleteUser(int userId)
-        {
-            Console.WriteLine($&quot;Deleting user {userId} from database&quot;);
-        }
-    }
-
-    public class PaymentProcessor
-    {
-        public void CancelSubscription(int userId)
-        {
-            Console.WriteLine($&quot;Cancelling subscription for user {userId}&quot;);
-        }
-    }
-
-    // Violates Single Responsibility Principle: This method does too many unrelated things
-    public void DoEverything(string userName, int userId, double amount)
-    {
-        SaveToFile(userName);
-        SendEmail(userName + &quot;@example.com&quot;, &quot;Welcome!&quot;);
-        LogError(&quot;User created&quot;);
-        GenerateReport();
-        CalculateDiscount(amount, &quot;Regular&quot;, 0, false);
-        GetUserDetails(userId);
-        new UserManager().CreateUser(userName);
-    }
-
-    // Additional method to increase SRP violations
-    public void DoMoreThings(string userName, int userId, double amount)
-    {
-        PrintData(userName);
-        ArchiveData(userName);
-        CalculateSpecialDiscount(amount, &quot;Special&quot;);
-        GetGuestDetails(userId);
-    }
-}</span></li>
+  }</span></li>
             </ul>
             <div class='gpt-response'>
               <strong>ChatGPT Response:</strong>
               <pre style='white-space: pre-wrap;'>{
-    &quot;error&quot;: {
-        &quot;message&quot;: &quot;Incorrect API key provided: your-key. You can find your API key at https://platform.openai.com/account/api-keys.&quot;,
-        &quot;type&quot;: &quot;invalid_request_error&quot;,
-        &quot;param&quot;: null,
-        &quot;code&quot;: &quot;invalid_api_key&quot;
+  &quot;id&quot;: &quot;chatcmpl-9tNOF7PxZURn9CqgiAZwoT3rRxQnJ&quot;,
+  &quot;object&quot;: &quot;chat.completion&quot;,
+  &quot;created&quot;: 1722984979,
+  &quot;model&quot;: &quot;gpt-3.5-turbo-0125&quot;,
+  &quot;choices&quot;: [
+    {
+      &quot;index&quot;: 0,
+      &quot;message&quot;: {
+        &quot;role&quot;: &quot;assistant&quot;,
+        &quot;content&quot;: &quot;Analysis:\nThe code provided violates the Single Responsibility Principle (SRP). The `Violation` class is responsible for managing violation details such as the principle violated, file details, and even has a method related to string representation. This violates SRP as the class has more than one reason to change - it handles both the violation data and the formatting logic for string representation.\n\nTo address this violation, we need to refactor the code to separate concerns, so that each class has only one reason to change. We can achieve this by introducing a separate class for formatting the Violation details. This will improve maintainability and readability of the code.\n\nRefactored Code:\n\n```csharp\n// Violation class responsible for managing violation data\npublic class Violation : IViolation {\n    public string Principle { get; }\n    private readonly List&lt;IViolationFileDetail&gt; _fileDetails;\n    public IReadOnlyList&lt;IViolationFileDetail&gt; FileDetails =&gt; _fileDetails.AsReadOnly();\n    public string ChatGPTResponse { get; set; }\n\n    public Violation(string principle, List&lt;IViolationFileDetail&gt; fileDetails) {\n        Principle = principle;\n        _fileDetails = fileDetails;\n        Console.WriteLine($\&quot;Violation instance created for principle: {principle}\&quot;);\n    }\n}\n\n// ViolationFormatter class responsible for formatting Violation details\npublic class ViolationFormatter {\n    public string FormatViolation(Violation violation) {\n        return $\&quot;Principle: {violation.Principle}, Files: {string.Join(\&quot;; \&quot;, violation.FileDetails)}\&quot;;\n    }\n}\n```\n\nIn the refactored code:\n- The `Violation` class now focuses solely on managing violation data.\n- The `ViolationFormatter` class has been introduced to handle the formatting of violation details. This separation adheres to the SRP as each class now has a single responsibility.\n\nBy splitting the responsibilities into separate classes, we enhance the readability, maintainability, and extensibility of the codebase. Now, any changes related to violation data management or formatting can be easily isolated and implemented without affecting the other functionality.&quot;,
+        &quot;refusal&quot;: null
+      },
+      &quot;logprobs&quot;: null,
+      &quot;finish_reason&quot;: &quot;stop&quot;
     }
+  ],
+  &quot;usage&quot;: {
+    &quot;prompt_tokens&quot;: 485,
+    &quot;completion_tokens&quot;: 421,
+    &quot;total_tokens&quot;: 906
+  },
+  &quot;system_fingerprint&quot;: null
 }
 </pre></div>
         </body>
