@@ -14,11 +14,13 @@ namespace SOLIDify {
   class Program {
     private readonly IProjectAnalyzer _projectAnalyzer;
 
+    // Constructor for Program class, initializes the IProjectAnalyzer dependency
     public Program(IProjectAnalyzer projectAnalyzer) {
       _projectAnalyzer = projectAnalyzer;
       Console.WriteLine("Program instance created with IProjectAnalyzer.");
     }
 
+    // Main entry point of the application
     static async Task Main(string[] args) {
       Console.WriteLine("Starting SOLIDify application...");
       if (args.Length == 0) {
@@ -38,6 +40,7 @@ namespace SOLIDify {
       Console.WriteLine("Project analysis completed.");
     }
 
+    // Configures the service collection and returns the service provider
     private static IServiceProvider ConfigureServiceCollection() {
       Console.WriteLine("Configuring service collection...");
       var serviceCollection = new ServiceCollection();
@@ -46,6 +49,7 @@ namespace SOLIDify {
       return serviceCollection.BuildServiceProvider();
     }
 
+    // Registers all the required services for dependency injection
     private static void RegisterServices(IServiceCollection services) {
       Console.WriteLine("Registering services...");
       services.AddSingleton<IMetricsProvider, SOLIDMetrics>()
@@ -65,24 +69,29 @@ namespace SOLIDify {
       Console.WriteLine("Services registered.");
     }
 
+    // Analyzes the project at the given directory path
     private Task AnalyzeProject(string directoryPath) {
       Console.WriteLine($"Analyzing project at: {directoryPath}");
       return _projectAnalyzer.Analyze(directoryPath);
     }
   }
 
+  // Interface for project analyzer
   public interface IProjectAnalyzer {
     Task Analyze(string directoryPath);
   }
 
+  // Implementation of the IProjectAnalyzer interface
   class ProjectAnalyzer : IProjectAnalyzer {
     private readonly IMetricsProvider _metricsProvider;
 
+    // Constructor for ProjectAnalyzer class, initializes the IMetricsProvider dependency
     public ProjectAnalyzer(IMetricsProvider metricsProvider) {
       _metricsProvider = metricsProvider;
       Console.WriteLine("ProjectAnalyzer instance created with IMetricsProvider.");
     }
 
+    // Analyzes the project directory and checks for SOLID principle violations
     public async Task Analyze(string directoryPath) {
       Console.WriteLine($"Starting analysis of directory: {directoryPath}");
       foreach (var file in Directory.GetFiles(directoryPath, "*.cs", SearchOption.AllDirectories)) {
@@ -114,6 +123,7 @@ namespace SOLIDify {
     }
   }
 
+  // Interface for checking various SOLID principles
   public interface IMetricsChecker {
     void CheckSRP(CompilationUnitSyntax root, string fileName);
     void CheckOCP(CompilationUnitSyntax root, string fileName);
@@ -122,56 +132,68 @@ namespace SOLIDify {
     void CheckDIP(CompilationUnitSyntax root, string fileName);
   }
 
+  // Interface for reporting metrics
   public interface IMetricsReporter {
     void DisplayMetrics();
     Task SendToChatGPT(string apiKey);
     Task GenerateHtmlReport();
   }
 
+  // Interface that combines both checking and reporting metrics
   public interface IMetricsProvider : IMetricsChecker, IMetricsReporter {}
 
+  // Interface for representing a violation
   public interface IViolation {
     string Principle { get; }
     IReadOnlyList<IViolationFileDetail> FileDetails { get; }
     string ChatGPTResponse { get; set; }
   }
 
+  // Interface for representing details of a violation in a file
   public interface IViolationFileDetail {
     string FileName { get; }
     int LineNumber { get; }
     string Code { get; }
   }
 
+  // Interface for creating violation instances
   public interface IViolationFactory {
     IViolation CreateViolation(string principle, IEnumerable<IViolationFileDetail> fileDetails);
   }
 
+  // Interface for creating violation file detail instances
   public interface IViolationFileDetailFactory {
     IViolationFileDetail CreateViolationFileDetail(string fileName, int lineNumber, string code);
   }
 
+  // Implementation of the IViolationFactory interface
   public class ViolationFactory : IViolationFactory {
     private readonly IServiceProvider _serviceProvider;
 
+    // Constructor for ViolationFactory class, initializes the IServiceProvider dependency
     public ViolationFactory(IServiceProvider serviceProvider) {
       _serviceProvider = serviceProvider;
       Console.WriteLine("ViolationFactory instance created.");
     }
 
+    // Creates a new violation instance
     public IViolation CreateViolation(string principle, IEnumerable<IViolationFileDetail> fileDetails) {
       Console.WriteLine($"Creating violation for principle: {principle}");
       return ActivatorUtilities.CreateInstance<Violation>(_serviceProvider, principle, fileDetails.ToList());
     }
   }
 
+  // Implementation of the IViolationFileDetailFactory interface
   public class ViolationFileDetailFactory : IViolationFileDetailFactory {
     private readonly IServiceProvider _serviceProvider;
 
+    // Constructor for ViolationFileDetailFactory class, initializes the IServiceProvider dependency
     public ViolationFileDetailFactory(IServiceProvider serviceProvider) {
       _serviceProvider = serviceProvider;
       Console.WriteLine("ViolationFileDetailFactory instance created.");
     }
 
+    // Creates a new violation file detail instance
     public IViolationFileDetail CreateViolationFileDetail(string fileName, int lineNumber, string code) {
       Console.WriteLine($"Creating violation file detail for file: {fileName}, line: {lineNumber}");
       return ActivatorUtilities.CreateInstance<ViolationFileDetail>(_serviceProvider, fileName, lineNumber, code);
@@ -180,6 +202,7 @@ namespace SOLIDify {
 
   // New class for managing violations
   public class ViolationManager {
+    // Manages a given violation
     public void ManageViolation(IViolation violation) {
       // Logic for managing violations
     }
@@ -187,6 +210,7 @@ namespace SOLIDify {
 
   // New class for managing violation file details
   public class ViolationFileDetailManager {
+    // Adds a violation file detail to a given violation
     public void AddViolationFileDetail(IViolation violation, IViolationFileDetail fileDetail) {
       // Logic for adding violation file details
     }
@@ -199,22 +223,26 @@ namespace SOLIDify {
     public IReadOnlyList<IViolationFileDetail> FileDetails => _fileDetails.AsReadOnly();
     public string ChatGPTResponse { get; set; }
 
+    // Constructor for Violation class, initializes the principle and file details
     public Violation(string principle, List<IViolationFileDetail> fileDetails) {
       Principle = principle;
       _fileDetails = fileDetails;
       Console.WriteLine($"Violation instance created for principle: {principle}");
     }
 
+    // Returns a string representation of the violation
     public override string ToString() {
       return $"Principle: {Principle}, Files: {string.Join("; ", FileDetails)}";
     }
   }
 
+  // ViolationFileDetail class focused on representing details of a violation in a file
   public class ViolationFileDetail : IViolationFileDetail {
     public string FileName { get; }
     public int LineNumber { get; }
     public string Code { get; }
 
+    // Constructor for ViolationFileDetail class, initializes the file name, line number, and code
     public ViolationFileDetail(string fileName, int lineNumber, string code) {
       FileName = fileName;
       LineNumber = lineNumber;
@@ -222,10 +250,13 @@ namespace SOLIDify {
       Console.WriteLine($"ViolationFileDetail instance created for file: {fileName}, line: {lineNumber}");
     }
 
+    // Returns a string representation of the violation file detail
     public override string ToString() {
       return $"File: {FileName}, Line: {LineNumber}, Code: {Code}";
     }
   }
+
+  // SOLIDMetrics class that implements the IMetricsProvider interface
   public class SOLIDMetrics : IMetricsProvider {
     private readonly IViolationFactory _violationFactory;
     private readonly IViolationFileDetailFactory _violationFileDetailFactory;
@@ -236,6 +267,7 @@ namespace SOLIDify {
 
     public List<IViolation> Violations { get; } = new List<IViolation>();
 
+    // Constructor for SOLIDMetrics class, initializes various dependencies
     public SOLIDMetrics(IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory, ISRPChecker srpChecker, IEnumerable<ISOLIDChecker> checkers, ViolationManager violationManager, ViolationFileDetailManager violationFileDetailManager) {
       _violationFactory = violationFactory;
       _violationFileDetailFactory = violationFileDetailFactory;
@@ -246,35 +278,41 @@ namespace SOLIDify {
       Console.WriteLine("SOLIDMetrics instance created.");
     }
 
+    // Checks for SRP violations in the given file
     public void CheckSRP(CompilationUnitSyntax root, string fileName) {
       Console.WriteLine($"Checking SRP for file: {fileName}");
       _srpChecker.Check(root, fileName, Violations, _violationFactory, _violationFileDetailFactory);
     }
 
+    // Checks for OCP violations in the given file
     public void CheckOCP(CompilationUnitSyntax root, string fileName) {
       Console.WriteLine($"Checking OCP for file: {fileName}");
       var checker = _checkers.OfType<IOCPChecker>().FirstOrDefault();
       checker?.Check(root, fileName, Violations, _violationFactory, _violationFileDetailFactory);
     }
 
+    // Checks for LSP violations in the given file
     public void CheckLSP(CompilationUnitSyntax root, string fileName) {
       Console.WriteLine($"Checking LSP for file: {fileName}");
       var checker = _checkers.OfType<ILSPChecker>().FirstOrDefault();
       checker?.Check(root, fileName, Violations, _violationFactory, _violationFileDetailFactory);
     }
 
+    // Checks for ISP violations in the given file
     public void CheckISP(CompilationUnitSyntax root, string fileName) {
       Console.WriteLine($"Checking ISP for file: {fileName}");
       var checker = _checkers.OfType<IISPChecker>().FirstOrDefault();
       checker?.Check(root, fileName, Violations, _violationFactory, _violationFileDetailFactory);
     }
 
+    // Checks for DIP violations in the given file
     public void CheckDIP(CompilationUnitSyntax root, string fileName) {
       Console.WriteLine($"Checking DIP for file: {fileName}");
       var checker = _checkers.OfType<IDIPChecker>().FirstOrDefault();
       checker?.Check(root, fileName, Violations, _violationFactory, _violationFileDetailFactory);
     }
 
+    // Displays the collected metrics
     public void DisplayMetrics() {
       Console.WriteLine("Displaying metrics:");
       foreach (var violation in Violations) {
@@ -282,6 +320,7 @@ namespace SOLIDify {
       }
     }
 
+    // Sends the collected violations to ChatGPT for further analysis
     public async Task SendToChatGPT(string apiKey) {
       Console.WriteLine("Sending violations to ChatGPT...");
       using var client = new HttpClient();
@@ -329,6 +368,7 @@ namespace SOLIDify {
       Console.WriteLine("Finished sending violations to ChatGPT.");
     }
 
+    // Generates an HTML report of the collected metrics
     public async Task GenerateHtmlReport() {
       Console.WriteLine("Generating HTML report...");
       var html = @"
@@ -380,23 +420,32 @@ namespace SOLIDify {
     }
   }
 
+  // Interface for SOLID principle checkers
   public interface ISOLIDChecker {
     void Check(CompilationUnitSyntax root, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory);
   }
 
+  // Interface for SRP checker
   public interface ISRPChecker : ISOLIDChecker {}
+  // Interface for OCP checker
   public interface IOCPChecker : ISOLIDChecker {}
+  // Interface for LSP checker
   public interface ILSPChecker : ISOLIDChecker {}
+  // Interface for ISP checker
   public interface IISPChecker : ISOLIDChecker {}
+  // Interface for DIP checker
   public interface IDIPChecker : ISOLIDChecker {}
 
+  // Implementation of the SRP checker
   public class SRPChecker : ISRPChecker {
     private readonly ViolationFileDetailManager _violationFileDetailManager;
 
+    // Constructor for SRPChecker class, initializes the ViolationFileDetailManager dependency
     public SRPChecker(ViolationFileDetailManager violationFileDetailManager) {
       _violationFileDetailManager = violationFileDetailManager;
     }
 
+    // Checks for SRP violations in the given file
     public void Check(CompilationUnitSyntax root, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       Console.WriteLine($"SRPChecker: Checking file {fileName}");
       var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
@@ -412,6 +461,7 @@ namespace SOLIDify {
       }
     }
 
+    // Analyzes the responsibilities of the given methods and properties
     private List<string> AnalyzeResponsibilities(List<MethodDeclarationSyntax> methods, List<PropertyDeclarationSyntax> properties) {
       var responsibilities = new List<string>();
       var methodGroups = methods.GroupBy(m => {
@@ -431,6 +481,7 @@ namespace SOLIDify {
       return responsibilities;
     }
 
+    // Determines the responsibility category of a method based on its name and body
     private string GetResponsibilityCategory(string methodName, string body) {
       if (methodName.Contains("calculate") || methodName.Contains("compute")) return "Calculation";
       if (methodName.Contains("save") || methodName.Contains("load") || methodName.Contains("fetch")) return "DataAccess";
@@ -440,6 +491,7 @@ namespace SOLIDify {
       return "Other";
     }
 
+    // Adds a violation to the list of violations
     private void AddViolation(string principle, SyntaxNode node, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       var lineNumber = node.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
       var fileDetail = violationFileDetailFactory.CreateViolationFileDetail(fileName, lineNumber, node.ToString());
@@ -453,13 +505,16 @@ namespace SOLIDify {
     }
   }
 
+  // Implementation of the OCP checker
   public class OCPChecker : IOCPChecker {
     private readonly ViolationFileDetailManager _violationFileDetailManager;
 
+    // Constructor for OCPChecker class, initializes the ViolationFileDetailManager dependency
     public OCPChecker(ViolationFileDetailManager violationFileDetailManager) {
       _violationFileDetailManager = violationFileDetailManager;
     }
 
+    // Checks for OCP violations in the given file
     public void Check(CompilationUnitSyntax root, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       Console.WriteLine($"OCPChecker: Checking file {fileName}");
       var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
@@ -474,6 +529,7 @@ namespace SOLIDify {
       }
     }
 
+    // Determines if a class is open for extension
     private bool IsOpenForExtension(ClassDeclarationSyntax classDeclaration) {
       var hasInheritance = classDeclaration.BaseList?.Types.Any() ?? false;
       var hasInterfaces = classDeclaration.BaseList?.Types.OfType<SimpleBaseTypeSyntax>()
@@ -490,6 +546,7 @@ namespace SOLIDify {
       return hasInheritance || hasInterfaces || hasVirtualMethods || hasAbstractMethods || hasExtensionMethods || usesStrategyPattern;
     }
 
+    // Determines if a class is closed for modification
     private bool IsClosedForModification(ClassDeclarationSyntax classDeclaration) {
       var hasSealedModifier = classDeclaration.Modifiers.Any(SyntaxKind.SealedKeyword);
       var hasPrivateSetters = classDeclaration.Members.OfType<PropertyDeclarationSyntax>()
@@ -502,6 +559,7 @@ namespace SOLIDify {
       return (hasSealedModifier || hasPrivateSetters || hasReadonlyFields) && hasNoPublicMutableState;
     }
 
+    // Adds a violation to the list of violations
     private void AddViolation(string principle, SyntaxNode node, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       var lineNumber = node.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
       var fileDetail = violationFileDetailFactory.CreateViolationFileDetail(fileName, lineNumber, node.ToString());
@@ -515,15 +573,18 @@ namespace SOLIDify {
     }
   }
 
+  // Implementation of the LSP checker
   public class LSPChecker : ILSPChecker {
     private readonly Compilation _compilation;
     private readonly ViolationFileDetailManager _violationFileDetailManager;
 
+    // Constructor for LSPChecker class, initializes the Compilation and ViolationFileDetailManager dependencies
     public LSPChecker(Compilation compilation, ViolationFileDetailManager violationFileDetailManager) {
       _compilation = compilation;
       _violationFileDetailManager = violationFileDetailManager;
     }
 
+    // Checks for LSP violations in the given file
     public void Check(CompilationUnitSyntax root, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       Console.WriteLine($"LSPChecker: Checking file {fileName}");
       var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
@@ -539,12 +600,14 @@ namespace SOLIDify {
       }
     }
 
+    // Finds the base class of a given class
     private ClassDeclarationSyntax FindBaseClass(CompilationUnitSyntax root, string baseTypeName) {
       return root.DescendantNodes()
                  .OfType<ClassDeclarationSyntax>()
                  .FirstOrDefault(c => c.Identifier.Text == baseTypeName);
     }
 
+    // Determines if a derived class is substitutable for its base class
     private bool IsSubstitutable(ClassDeclarationSyntax baseClass, ClassDeclarationSyntax derivedClass) {
       var baseMethods = baseClass.Members.OfType<MethodDeclarationSyntax>().ToList();
       var derivedMethods = derivedClass.Members.OfType<MethodDeclarationSyntax>().ToList();
@@ -585,6 +648,7 @@ namespace SOLIDify {
       return false;
     }
 
+    // Determines if the parameters of the derived method are contravariant with the base method
     private bool AreParametersContravariant(SeparatedSyntaxList<ParameterSyntax> baseParams, SeparatedSyntaxList<ParameterSyntax> derivedParams) {
       if (baseParams.Count != derivedParams.Count) {
         return false;
@@ -602,11 +666,13 @@ namespace SOLIDify {
       return true;
     }
 
+    // Retrieves the type symbol for a given type syntax
     private ITypeSymbol GetTypeSymbol(TypeSyntax typeSyntax) {
       var semanticModel = _compilation.GetSemanticModel(typeSyntax.SyntaxTree);
       return semanticModel.GetTypeInfo(typeSyntax).Type;
     }
 
+    // Checks if a type is a subclass of another type
     private bool IsSubclassOf(ITypeSymbol derivedType, ITypeSymbol baseType) {
       if (derivedType == null || baseType == null) {
         return false;
@@ -623,6 +689,7 @@ namespace SOLIDify {
       return false;
     }
 
+    // Checks if a type is assignable from another type
     private bool IsAssignableFrom(ITypeSymbol baseType, ITypeSymbol derivedType) {
       if (baseType == null || derivedType == null) {
         return false;
@@ -635,6 +702,7 @@ namespace SOLIDify {
       return IsSubclassOf(derivedType, baseType);
     }
 
+    // Adds a violation to the list of violations
     private void AddViolation(string principle, SyntaxNode node, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       var lineNumber = node.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
       var fileDetail = violationFileDetailFactory.CreateViolationFileDetail(fileName, lineNumber, node.ToString());
@@ -648,13 +716,16 @@ namespace SOLIDify {
     }
   }
 
+  // Class for checking Interface Segregation Principle (ISP) violations
   public class ISPChecker : IISPChecker {
     private readonly ViolationFileDetailManager _violationFileDetailManager;
 
+    // Constructor for ISPChecker class, initializes the ViolationFileDetailManager dependency
     public ISPChecker(ViolationFileDetailManager violationFileDetailManager) {
       _violationFileDetailManager = violationFileDetailManager;
     }
 
+    // Checks for ISP violations in the given compilation unit
     public void Check(CompilationUnitSyntax root, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       Console.WriteLine($"ISPChecker: Checking file {fileName}");
       var interfaces = root.DescendantNodes().OfType<InterfaceDeclarationSyntax>();
@@ -666,6 +737,7 @@ namespace SOLIDify {
       }
     }
 
+    // Determines if an interface is segregated
     private bool IsInterfaceSegregated(InterfaceDeclarationSyntax @interface) {
       var methods = @interface.Members.OfType<MethodDeclarationSyntax>().ToList();
       var properties = @interface.Members.OfType<PropertyDeclarationSyntax>().ToList();
@@ -683,6 +755,7 @@ namespace SOLIDify {
       return true;
     }
 
+    // Categorizes a method based on its name
     private string GetMethodCategory(string methodName) {
       if (methodName.StartsWith("Get") || methodName.StartsWith("Set") || methodName.StartsWith("Is")) return "Accessor";
       if (methodName.StartsWith("Calculate") || methodName.StartsWith("Compute")) return "Calculation";
@@ -691,6 +764,7 @@ namespace SOLIDify {
       return "Other";
     }
 
+    // Adds a violation to the list of violations
     private void AddViolation(string principle, SyntaxNode node, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       var lineNumber = node.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
       var fileDetail = violationFileDetailFactory.CreateViolationFileDetail(fileName, lineNumber, node.ToString());
@@ -704,13 +778,16 @@ namespace SOLIDify {
     }
   }
 
+  // Class for checking Dependency Inversion Principle (DIP) violations
   public class DIPChecker : IDIPChecker {
     private readonly ViolationFileDetailManager _violationFileDetailManager;
 
+    // Constructor for DIPChecker class, initializes the ViolationFileDetailManager dependency
     public DIPChecker(ViolationFileDetailManager violationFileDetailManager) {
       _violationFileDetailManager = violationFileDetailManager;
     }
 
+    // Checks for DIP violations in the given compilation unit
     public void Check(CompilationUnitSyntax root, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       Console.WriteLine($"DIPChecker: Checking file {fileName}");
       var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
@@ -722,6 +799,7 @@ namespace SOLIDify {
       }
     }
 
+    // Determines if a class depends on abstractions
     private bool DependsOnAbstractions(ClassDeclarationSyntax classDeclaration) {
       var fieldTypes = classDeclaration.Members.OfType<FieldDeclarationSyntax>()
           .Select(f => f.Declaration.Type).ToList();
@@ -735,6 +813,7 @@ namespace SOLIDify {
       return allTypes.All(t => t is PredefinedTypeSyntax || t is IdentifierNameSyntax);
     }
 
+    // Adds a violation to the list of violations
     private void AddViolation(string principle, SyntaxNode node, string fileName, List<IViolation> violations, IViolationFactory violationFactory, IViolationFileDetailFactory violationFileDetailFactory) {
       var lineNumber = node.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
       var fileDetail = violationFileDetailFactory.CreateViolationFileDetail(fileName, lineNumber, node.ToString());
